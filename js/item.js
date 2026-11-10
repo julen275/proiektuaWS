@@ -1,26 +1,30 @@
 class Item {
-  static IRUDI_URL = 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/';
+  static IMG_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
-  // ApiDatuak: PokéAPIk itzulitako JSONa. Bi forma izan ditzake:
-  //  - zerrendako sarrera laburra: { name, url }
-  //  - elementu osoa (/pokemon/{id}): { id, name, types, height, weight, ... }
+  // ApiDatuak: TMDB-k itzulitako JSONa. Bi forma izan ditzake:
+  //  - zerrendako sarrera laburra / bilaketa: { id, title, poster_path, release_date, vote_average, ... }
+  //  - elementu osoa (/movie/{id}): { id, title, poster_path, release_date, vote_average, runtime, genres, ... }
   constructor(ApiDatuak) {
-    this.id = ApiDatuak.id ?? Item.idLortuUrltik(ApiDatuak.url);
-    this.izena = ApiDatuak.name;
-    this.irudia = `${Item.IRUDI_URL}${this.id}.png`;
+    this.id = ApiDatuak.id;
+    this.izena = ApiDatuak.title || ApiDatuak.name; // Filmen izenburua
+    
+    // Irudiaren kudeaketa TMDB-rekin
+    if (ApiDatuak.poster_path) {
+      this.irudia = `${Item.IMG_BASE_URL}${ApiDatuak.poster_path}`;
+    } else {
+      this.irudia = 'img/placeholder.png'; // Irudirik ez badago
+    }
 
-    this.motaks = (ApiDatuak.types ?? []).map(t => t.type.name);
-    // PokéAPIk altuera dezimetrotan eta pisua hektogramotan ematen ditu
-    this.altuera = ApiDatuak.height != null ? ApiDatuak.height / 10 : null;
-    this.pisua = ApiDatuak.weight != null ? ApiDatuak.weight / 10 : null;
+    // Generoak (TMDB-n array objektuak dira: [{id, name}, ...])
+    this.generoak = (ApiDatuak.genres ?? []).map(g => g.name);
+    
+    // Filmen datu erabilgarriak altuera/pisuaren ordez
+    this.data = ApiDatuak.release_date ?? '-';
+    this.puntuazioa = ApiDatuak.vote_average != null ? ApiDatuak.vote_average : null;
 
     this.balorazioa = null;
     this.iruzkina = '';
     this.gordetakoData = null;
-  }
-
-  static idLortuUrltik(url) {
-    return Number(url.split('/').filter(Boolean).pop());
   }
 
   static ihes(testua) {
@@ -29,6 +33,7 @@ class Item {
   }
 
   // Txartel laburra (emaitzen zerrendan eta bildumaren zerrendan erabiltzeko)
+ // Txartel laburra (emaitzen zerrendan eta bildumaren zerrendan erabiltzeko)
   toHTML() {
     const balorazioa = this.balorazioa !== null
       ? `<p class="item-balorazioa">${'★'.repeat(this.balorazioa)}${'☆'.repeat(5 - this.balorazioa)}</p>`
@@ -38,6 +43,7 @@ class Item {
       <div class="item-card" data-id="${this.id}">
         <img src="${Item.ihes(this.irudia)}" alt="${Item.ihes(this.izena)}" loading="lazy">
         <h3>${Item.ihes(this.izena)}</h3>
+        <p class="item-data">${Item.ihes(this.data)}</p>
         ${balorazioa}
       </div>
     `;
@@ -45,11 +51,10 @@ class Item {
 
   // Propietate guztiak. formularioa = true bada, balorazioa eta iruzkina sartzeko formularioa gehitzen da.
   toXehetasunHTML(formularioa = false) {
-    const motak = this.motaks.length
-      ? this.motaks.map(m => `<span class="etiketa">${Item.ihes(m)}</span>`).join(' ')
+    const generoak = this.generoak.length
+      ? this.generoak.map(g => `<span class="etiketa">${Item.ihes(g)}</span>`).join(' ')
       : '-';
-    const altuera = this.altuera !== null ? `${this.altuera} m` : '-';
-    const pisua = this.pisua !== null ? `${this.pisua} kg` : '-';
+    const puntuazioaTestua = this.puntuazioa !== null ? `${this.puntuazioa} / 10` : '-';
 
     let erabiltzailearenDatuak = '';
     if (this.balorazioa !== null) {
@@ -57,7 +62,7 @@ class Item {
         ? new Date(this.gordetakoData).toLocaleString('eu')
         : '-';
       erabiltzailearenDatuak = `
-        <p><strong>Balorazioa:</strong> ${this.balorazioa}/5</p>
+        <p><strong>Nire balorazioa:</strong> ${this.balorazioa}/5</p>
         <p><strong>Iruzkina:</strong> ${Item.ihes(this.iruzkina) || '-'}</p>
         <p><strong>Gordetako data:</strong> ${data}</p>
       `;
@@ -92,9 +97,9 @@ class Item {
         <img src="${Item.ihes(this.irudia)}" alt="${Item.ihes(this.izena)}">
         <h4>${Item.ihes(this.izena)}</h4>
         <p><strong>ID:</strong> ${this.id}</p>
-        <p><strong>Motak:</strong> ${motak}</p>
-        <p><strong>Altuera:</strong> ${altuera}</p>
-        <p><strong>Pisua:</strong> ${pisua}</p>
+        <p><strong>Estreinaldia:</strong> ${Item.ihes(this.data)}</p>
+        <p><strong>Puntuazioa (TMDB):</strong> ${puntuazioaTestua}</p>
+        <p><strong>Generoak:</strong> ${generoak}</p>
         ${erabiltzailearenDatuak}
         ${form}
       </div>
@@ -106,9 +111,9 @@ class Item {
       id: this.id,
       izena: this.izena,
       irudia: this.irudia,
-      motaks: this.motaks,
-      altuera: this.altuera,
-      pisua: this.pisua,
+      generoak: this.generoak,
+      data: this.data,
+      puntuazioa: this.puntuazioa,
       balorazioa: this.balorazioa,
       iruzkina: this.iruzkina,
       gordetakoData: this.gordetakoData
@@ -116,14 +121,32 @@ class Item {
   }
 
   static fromStorageObject(obj) {
-    const item = new Item({ id: obj.id, name: obj.izena });
+    const item = new Item({ id: obj.id, title: obj.izena });
     item.irudia = obj.irudia ?? item.irudia;
-    item.motaks = obj.motaks ?? [];
-    item.altuera = obj.altuera ?? null;
-    item.pisua = obj.pisua ?? null;
+    item.generoak = obj.generoak ?? [];
+    item.data = obj.data ?? '-';
+    item.puntuazioa = obj.puntuazioa ?? null;
     item.balorazioa = obj.balorazioa ?? null;
     item.iruzkina = obj.iruzkina ?? '';
     item.gordetakoData = obj.gordetakoData ?? null;
     return item;
+  }
+
+  toKudeatuHTML() {
+    return `
+      <div class="item-kudeatu" data-id="${this.id}">
+        <img src="${this.irudia}" alt="${this.izena}" width="70">
+        <h3>${this.izena}</h3>
+        
+        <label>Balorazioa:</label>
+        <input type="number" class="input-balorazioa" min="1" max="5" value="${this.balorazioa || 1}">
+        
+        <label>Iruzkina:</label>
+        <textarea class="input-iruzkina">${this.iruzkina || ''}</textarea>
+        
+        <button class="btn-gorde" data-id="${this.id}">Gorde</button>
+        <button class="btn-ezabatu" data-id="${this.id}">Ezabatu</button>
+      </div>
+    `;
   }
 }

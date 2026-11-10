@@ -1,9 +1,8 @@
 const MAX_EMAITZAK = 30;
 
 const BILAKETA_MOTAK = {
-  izena: { placeholder: 'Pokemonaren izena (adib. pika)', inputmode: 'text' },
-  id: { placeholder: 'Pokedex zenbakia (1-1025)', inputmode: 'numeric' },
-  mota: { placeholder: 'Mota (adib. fire)', inputmode: 'text' }
+  izena: { placeholder: 'Filma/Telesailaren izena (adib. Matrix)', inputmode: 'text' },
+  id: { placeholder: 'Filmaren ID zenbakia', inputmode: 'numeric' }
 };
 
 let bilaketaZenbakia = 0;   // bilaketa zaharren erantzunak baztertzeko
@@ -14,9 +13,6 @@ let hautatutakoItem = null;
 function hasieratuBilatzailea() {
   const form = document.getElementById('form-bilatzaile');
   const aukeratzailea = document.getElementById('select-bilaketa-mota');
-
-  document.getElementById('motak-zerrenda').innerHTML =
-    MOTAK.map(m => `<option value="${m}"></option>`).join('');
 
   aukeratzailea.addEventListener('change', egokituBilaketaInputa);
   egokituBilaketaInputa();
@@ -37,12 +33,7 @@ function egokituBilaketaInputa() {
 
   input.placeholder = BILAKETA_MOTAK[mota].placeholder;
   input.inputMode = BILAKETA_MOTAK[mota].inputmode;
-
-  if (mota === 'mota') {
-    input.setAttribute('list', 'motak-zerrenda');
-  } else {
-    input.removeAttribute('list');
-  }
+  input.removeAttribute('list');
 }
 
 async function bilatuEtaErakutsi() {
@@ -87,7 +78,7 @@ function erakutsiEmaitzak() {
   const emaitzak = document.getElementById('emaitzak-bilaketa');
 
   if (emaitzaItemak.length === 0) {
-    emaitzak.innerHTML = '<p>Ez da emaitzarik aurkitu.</p>';
+    emaitzak.innerHTML = '<p>Ez da emaitzarik aurkitu.</p>'; // <-- HEMEN ZEEGOEN AKATSA: 'emaitzaItemak' zegoen 'emaitzak' egon beharrean
     return;
   }
 
@@ -122,8 +113,8 @@ async function hautatuEmaitza(event) {
   try {
     let item = emaitzaItemak[indizea];
 
-    // Zerrendako sarrera laburrek ez dute altuerarik: xehetasun osoak eskatu
-    if (item.altuera === null) {
+    // Zerrendako sarrera laburrek generorik ez badute: xehetasun osoak eskatu
+    if (item.generoak.length === 0) {
       item = new Item(await lortuXehetasunakApi(id));
       emaitzaItemak[indizea] = item;
     }

@@ -41,4 +41,17 @@ class bildumaStorage {
   static hustu() {
     localStorage.removeItem(BILDUMA_GAKOA);
   }
+
+// 3. URRATSA: Elementu bat aldatu eta localStorage-n gordetzeko metodo berria
+static eguneratu(item) {
+  const array = bildumaStorage.denakLortu();
+  const objektua = item.toStorageObject();
+  const indizea = array.findIndex(e => e.id === objektua.id);
+
+  if (indizea >= 0) {
+    array[indizea] = objektua;
+    localStorage.setItem(BILDUMA_GAKOA, JSON.stringify(array));
+  }
+}
+
 }

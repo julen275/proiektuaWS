@@ -3,6 +3,12 @@
 <section id="bilaketa" class="panel">
   <h3>Bilaketa</h3>
   <form id="form-bilatzaile">
+    <select id="select-bilaketa-mota">
+      <option value="izena">Izena</option>
+      <option value="id">ID</option>
+      <option value="mota">Mota</option>
+    </select>
+
     <input
       type="text"
       id="input-bilaketa"
@@ -11,6 +17,9 @@
     >
     <button type="submit">Bilatu</button>
   </form>
+
+  <datalist id="motak-zerrenda"></datalist>
+
   <p id="egoera-bilatzen"></p>
 </section>
 

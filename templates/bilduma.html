@@ -1,6 +1,47 @@
 <h2>Nire Bilduma</h2>
 
-<div id="bilduma-kontrolak" class="panel"></div>
+<div id="bilduma-kontrolak" class="panel">
+  <h3>Kontrolak eta Iragazkiak</h3>
+  <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+    <label>
+      Gutxieneko Balorazioa:
+      <select id="iragazki-balorazioa">
+        <option value="0">Guztiak</option>
+        <option value="1">1+ izar</option>
+        <option value="2">2+ izar</option>
+        <option value="3">3+ izar</option>
+        <option value="4">4+ izar</option>
+        <option value="5">5 izar</option>
+      </select>
+    </label>
+
+    <label>
+      Generoa:
+      <select id="iragazki-mota">
+        <option value="">Guztiak</option>
+      </select>
+    </label>
+
+    <label>
+      Ordenatu:
+      <select id="ordena-eremua">
+        <option value="izena">Izena</option>
+        <option value="balorazioa">Balorazioa</option>
+        <option value="data">Data</option>
+      </select>
+    </label>
+
+    <label>
+      Norabidea:
+      <select id="ordena-norabidea">
+        <option value="gorantz">Gorantz</option>
+        <option value="beherantz">Beherantz</option>
+      </select>
+    </label>
+
+    <span id="bilduma-kopurua" style="margin-left: auto; font-weight: bold;"></span>
+  </div>
+</div>
 
 <div class="bilduma-edukiak">
 

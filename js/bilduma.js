@@ -3,37 +3,49 @@ let bildumaHautatutakoId = null;
 
 function hasieratuBilduma() {
   ['iragazki-balorazioa', 'iragazki-mota', 'ordena-eremua', 'ordena-norabidea']
-    .forEach(id => document.getElementById(id).addEventListener('change', errenderizatuBilduma));
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', errenderizatuBilduma);
+    });
 
-  document.getElementById('lista-bilduma').addEventListener('click', hautatuBildumaItema);
+  const lista = document.getElementById('lista-bilduma');
+  if (lista) {
+    lista.addEventListener('click', hautatuBildumaItema);
+  }
 }
 
 // Atala erakusten den bakoitzean deitzen da (bilatzailean gordetako elementu berriak ager daitezen)
 function erakutsiBilduma() {
-  if (!document.getElementById('lista-bilduma')) return;
+  const lista = document.getElementById('lista-bilduma');
+  if (!lista) return;
 
   bildumaItems = bildumaStorage.itemBezalaLortu();
 
   if (!bildumaItems.some(i => i.id === bildumaHautatutakoId)) {
     bildumaHautatutakoId = null;
-    document.getElementById('xehetasun-bilduma').innerHTML =
-      '<p>Item bat aukeratu bere xehetasunak bistaratzeko.</p>';
+    const xehetasuna = document.getElementById('xehetasun-bilduma');
+    if (xehetasuna) {
+      xehetasuna.innerHTML = '<p>Item bat aukeratu bere xehetasunak bistaratzeko.</p>';
+    }
   }
 
   eguneratuMotaIragazkia();
   errenderizatuBilduma();
 }
 
-// Iragazkiaren aukerak bildumako elementuen motetatik sortzen dira
+// Iragazkiaren aukerak bildumako elementuen generoetatik sortzen dira
 function eguneratuMotaIragazkia() {
   const select = document.getElementById('iragazki-mota');
+  if (!select) return;
+
   const aukeratuta = select.value;
-  const motak = [...new Set(bildumaItems.flatMap(i => i.motaks))].sort();
+  // 'motaks' ordez 'generoak' erabiltzen dugu TMDB-rekin
+  const generoak = [...new Set(bildumaItems.flatMap(i => i.generoak || []))].sort();
 
   select.innerHTML = '<option value="">Guztiak</option>' +
-    motak.map(m => `<option value="${Item.ihes(m)}">${Item.ihes(m)}</option>`).join('');
+    generoak.map(g => `<option value="${Item.ihes(g)}">${Item.ihes(g)}</option>`).join('');
 
-  select.value = motak.includes(aukeratuta) ? aukeratuta : '';
+  select.value = generoak.includes(aukeratuta) ? aukeratuta : '';
 }
 
 function konparatuItemak(a, b, eremua) {
@@ -49,15 +61,16 @@ function konparatuItemak(a, b, eremua) {
 function errenderizatuBilduma() {
   const lista = document.getElementById('lista-bilduma');
   const kopurua = document.getElementById('bilduma-kopurua');
+  if (!lista || !kopurua) return;
 
-  const gutxienekoBalorazioa = Number(document.getElementById('iragazki-balorazioa').value);
-  const mota = document.getElementById('iragazki-mota').value;
-  const eremua = document.getElementById('ordena-eremua').value;
-  const norabidea = document.getElementById('ordena-norabidea').value === 'beherantz' ? -1 : 1;
+  const gutxienekoBalorazioa = Number(document.getElementById('iragazki-balorazioa')?.value || 0);
+  const mota = document.getElementById('iragazki-mota')?.value || '';
+  const eremua = document.getElementById('ordena-eremua')?.value || 'izena';
+  const norabidea = document.getElementById('ordena-norabidea')?.value === 'beherantz' ? -1 : 1;
 
   const emaitza = bildumaItems
-    .filter(item => (item.balorazioa ?? 0) >= gutxienekoBalorazioa)       // erabiltzailearen eremua
-    .filter(item => mota === '' || item.motaks.includes(mota))            // APIaren eremua
+    .filter(item => (item.balorazioa ?? 0) >= gutxienekoBalorazioa)
+    .filter(item => mota === '' || (item.generoak && item.generoak.includes(mota)))
     .sort((a, b) =>
       konparatuItemak(a, b, eremua) * norabidea || a.izena.localeCompare(b.izena));
 
@@ -93,5 +106,8 @@ function hautatuBildumaItema(event) {
     .forEach(t => t.classList.remove('hautatua'));
   markatuBildumaHautatua();
 
-  document.getElementById('xehetasun-bilduma').innerHTML = item.toXehetasunHTML();
+  const xehetasuna = document.getElementById('xehetasun-bilduma');
+  if (xehetasuna) {
+    xehetasuna.innerHTML = item.toXehetasunHTML();
+  }
 }
