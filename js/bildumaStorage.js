@@ -1,23 +1,44 @@
 const BILDUMA_GAKOA = 'bilduma';
 
 class bildumaStorage {
+  // localStorage-ko objektu-arrunten array-a (edo [] ezer ez badago)
   static denakLortu() {
-    // TODO
+    try {
+      const gordeta = localStorage.getItem(BILDUMA_GAKOA);
+      const array = gordeta ? JSON.parse(gordeta) : [];
+      return Array.isArray(array) ? array : [];
+    } catch (error) {
+      console.error('Ezin izan da bilduma irakurri:', error);
+      return [];
+    }
   }
 
+  // ID bereko elementua badago, ordezkatu egiten da (ez da bikoizten)
   static gorde(item) {
-    // TODO
+    const array = bildumaStorage.denakLortu();
+    const objektua = item.toStorageObject();
+    const indizea = array.findIndex(e => e.id === objektua.id);
+
+    if (indizea >= 0) {
+      array[indizea] = objektua;
+    } else {
+      array.push(objektua);
+    }
+
+    localStorage.setItem(BILDUMA_GAKOA, JSON.stringify(array));
   }
 
+  // Item instantziak itzultzen ditu
   static itemBezalaLortu() {
-    // TODO
+    return bildumaStorage.denakLortu().map(obj => Item.fromStorageObject(obj));
   }
 
   static ezabatu(id) {
-    // TODO
+    const array = bildumaStorage.denakLortu().filter(e => e.id !== id);
+    localStorage.setItem(BILDUMA_GAKOA, JSON.stringify(array));
   }
 
   static hustu() {
-    // TODO
+    localStorage.removeItem(BILDUMA_GAKOA);
   }
 }

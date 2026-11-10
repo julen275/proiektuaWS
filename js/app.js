@@ -1,9 +1,15 @@
 const ATALAK = ['hasiera', 'bilatzaile', 'bilduma', 'kudeatuBilduma'];
 
+// Atala kargatu ondoren behin bakarrik exekutatzen dira
 const HASIERATZAILEAK = {
-  bilatzaile: () => {},
-  bilduma: () => {},
+  bilatzaile: hasieratuBilatzailea,
+  bilduma: hasieratuBilduma,
   kudeatuBilduma: () => {}
+};
+
+// Atala erakusten den bakoitzean exekutatzen dira (edukia eguneratzeko)
+const ERAKUSTEAN = {
+  bilduma: erakutsiBilduma
 };
 
 async function atalaKargatu(izena) {
@@ -23,59 +29,31 @@ async function atalaKargatu(izena) {
 }
 
 function erakutsiAtala(izena) {
-  console.log('Erakutsi atala:', izena);
- document.querySelectorAll('.atala').forEach(sec => {
-    sec.classList.remove('aktiboa');
-  });
-
   const atala = document.getElementById(`atala-${izena}`);
-  console.log('Contenedor encontrado:', atala);
-
   if (!atala) {
-    console.error('No existe el contenedor de la sección:', izena);
+    console.error('Ez dago atal honen edukiontzirik:', izena);
     return;
   }
 
+  document.querySelectorAll('.atala').forEach(sec => sec.classList.remove('aktiboa'));
   atala.classList.add('aktiboa');
-
-  console.log('Clases del contenedor:', atala.className);
-  console.log('Contenido:', atala.innerHTML);
 
   document.querySelectorAll('#menu-nagusia button')
     .forEach(btn => btn.classList.remove('active'));
-
-  const boton = document.querySelector(
-    `#menu-nagusia button[data-seccion="${izena}"]`
-  );
-
-  if (boton) boton.classList.add('active');
-}
-
-
-  /*document.querySelectorAll('.atala').forEach(sec => sec.classList.remove('aktiboa'));
-  document.getElementById(`atala-${izena}`).classList.add('aktiboa');
-
-  document.querySelectorAll('#menu-nagusia button').forEach(btn => btn.classList.remove('active'));
   const boton = document.querySelector(`#menu-nagusia button[data-seccion="${izena}"]`);
   if (boton) boton.classList.add('active');
-}*/
+
+  if (ERAKUSTEAN[izena]) ERAKUSTEAN[izena]();
+}
 
 async function jaurtiApp() {
   await Promise.all(ATALAK.map(atalaKargatu));
   erakutsiAtala('hasiera');
 }
 
-/*document.getElementById('menu-nagusia').addEventListener('click', (event) => {
-  const boton = event.target.closest('button[data-seccion]');
-  if (!boton) return;
-  erakutsiAtala(boton.dataset.seccion);
-});*/
 document.getElementById('menu-nagusia').addEventListener('click', (event) => {
-  console.log('Click detectado');
   const boton = event.target.closest('button[data-seccion]');
   if (!boton) return;
-
-  console.log('Botón pulsado:', boton.dataset.seccion);
   erakutsiAtala(boton.dataset.seccion);
 });
 
