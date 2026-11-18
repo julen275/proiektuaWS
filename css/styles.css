@@ -1,14 +1,29 @@
+:root {
+  color-scheme:light;
+  --fondoa: #ffffff;
+  --testua: #1a1a1a;
+  --ertzak: #cccccc; 
+}
+[data-theme="dark"]{
+  color-scheme:dark;
+  --fondoa: #121212;
+  --testua: #e8e8e8;
+  --ertzak: #444444;
+}
+
 body {
   font-family: sans-serif;
   margin: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  background: var(--fondoa);
+  color: var(--testua);
 }
 
 #goiburua {
   padding: 16px;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid var(--ertzak);
 }
 
 #goiburua h1 {
@@ -28,7 +43,7 @@ body {
   width: 200px;
   flex-shrink: 0;
   padding: 16px;
-  border-right: 1px solid #ccc;
+  border-right: 1px solid var(--ertzak);
 }
 
 #menu-nagusia button {
@@ -48,7 +63,7 @@ main {
 
 #oina {
   padding: 12px 16px;
-  border-top: 1px solid #ccc;
+  border-top: 1px solid var(--ertzak);
   text-align: center;
 }
 
@@ -65,7 +80,7 @@ main {
 }
 
 .item-card {
-  border: 1px solid #ccc;
+  border: 1px solid var(--ertzak);
   border-radius: 6px;
   padding: 12px;
   margin-bottom: 12px;
@@ -101,7 +116,7 @@ main {
 }
 
 .panel {
-  border: 1px solid #ccc;
+  border: 1px solid var(--ertzak);
   border-radius: 6px;
   padding: 12px;
 }
@@ -120,7 +135,7 @@ main {
     flex-direction: row;
     flex-wrap: wrap;
     border-right: none;
-    border-bottom: 1px solid #ccc;
+    border-bottom: 1px solid var(--ertzak);
   }
 
   .bilatzaile-edukia,

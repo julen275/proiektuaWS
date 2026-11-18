@@ -3,14 +3,16 @@ const ATALAK = {
   bilatzailea: { fitxategia: 'templates/bilatzaile.html', hasieratu: hasieratuBilatzailea },
   bilduma: { fitxategia: 'templates/bilduma.html', hasieratu: hasieratuBilduma, erakutsi: erakutsiBilduma },
   kudeatuBilduma: { fitxategia: 'templates/kudeatuBilduma.html', hasieratu: hasieratuKudeatuBilduma, erakutsi: erakutsiKudeatuBilduma },
-  estatistikak: { fitxategia: 'templates/estatistikak.html', erakutsi: erakutsiEstatistikak }
+  estatistikak: { fitxategia: 'templates/estatistikak.html', erakutsi: erakutsiEstatistikak }, 
+  ezarpenak: {fitxategia: 'templates/ezarpenak.html'}
 };
 
 // Atala kargatu ondoren behin bakarrik exekutatzen dira
 const HASIERATZAILEAK = {
   bilatzailea: hasieratuBilatzailea,
   bilduma: hasieratuBilduma,
-  kudeatuBilduma: hasieratuKudeatuBilduma
+  kudeatuBilduma: hasieratuKudeatuBilduma,
+  ezarpenak: hasieratuEzarpenak
 };
 
 // Atala erakusten den bakoitzean exekutatzen dira
@@ -132,5 +134,36 @@ function erakutsiKudeatuBilduma() {
 
   lista.innerHTML = items.map(item => item.toKudeatuHTML()).join('');
 }
+
+function temaIlunaDa(){
+  const gordeta = localStorage.getItem('gaia');
+  if(gordeta ===null) {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+  return gordeta === 'iluna';
+}
+function temaAplikatu(iluna){
+  if(iluna){
+    document.documentElement.dataset.theme= 'dark';
+
+  } else{
+    document.documentElement.removeAttribute('data-theme');
+  }
+}
+
+function hasieratuEzarpenak() {
+  const checkbox = document.getElementById('gai-aldatzailea');
+  if (!checkbox) return;
+
+  checkbox.checked = temaIlunaDa();
+
+  checkbox.onchange = () => {
+    temaAplikatu(checkbox.checked);
+    localStorage.setItem('tema', checkbox.checked ? 'iluna' : 'argia');
+  };
+}
+
+temaAplikatu(temaIlunaDa());
+
 
 jaurtiApp();
