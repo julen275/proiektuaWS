@@ -119,6 +119,45 @@ function hasieratuKudeatuBilduma() {
   }
 
   erakutsiKudeatuBilduma();
+
+  const esportatuBtn = document.getElementById('botoia-esportatu');
+  const inportatuInput = document.getElementById('fitxategia-inportatu');
+
+  if (esportatuBtn) esportatuBtn.onclick = esportatuBilduma;
+  if (inportatuInput) {
+    inportatuInput.onchange = (e) => {
+      const fitxategia = e.target.files[0];
+      if (fitxategia) inportatuBilduma(fitxategia);
+      e.target.value = '';
+    };
+  }
+}
+
+function esportatuBilduma(){
+  const datuak = JSON.stringify(bildumaStorage.denakLortu(),null,2);
+  const blob = new Blob([datuak],{type: 'application/json'});
+  const url= URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url ;
+  a.download = 'bilduma.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function inportatuBilduma(fitxategia) {
+  const mezua = document.getElementById('mezua-inportatu');
+  try {
+    const datuak = JSON.parse(await fitxategia.text());
+    const baliozkoa = Array.isArray(datuak) &&
+      datuak.every(d => d && d.id !== undefined && d.izena);
+    if (!baliozkoa) throw new Error('Formatu okerra');
+
+    datuak.forEach(d => bildumaStorage.gorde(Item.fromStorageObject(d)));
+    mezua.textContent = `${datuak.length} elementu inportatu dira.`;
+    erakutsiKudeatuBilduma();
+  } catch (error) {
+    mezua.textContent = 'Fitxategi baliogabea: ezin izan da inportatu.';
+  }
 }
 
 function erakutsiKudeatuBilduma() {
