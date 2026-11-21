@@ -4,6 +4,24 @@ class Item {
   // ApiDatuak: TMDB-k itzulitako JSONa. Bi forma izan ditzake:
   //  - zerrendako sarrera laburra / bilaketa: { id, title, poster_path, release_date, vote_average, ... }
   //  - elementu osoa (/movie/{id}): { id, title, poster_path, release_date, vote_average, runtime, genres, ... }
+  static GENERO_ITZULPENAK = {
+    'Acción': 'Akzioa',
+    'Aventura': 'Abentura',
+    'Ciencia ficción': 'Zientzia fikzioa',
+    'Comedia': 'Komedia',
+    'Drama': 'Drama',
+    'Terror': 'Beldurra',
+    'Animación': 'Animazioa',
+    'Familia': 'Familia',
+    'Misterio': 'Misterioa',
+    'Suspense': 'Suspensea',
+    'Fantasía': 'Fantasia'
+  };
+
+  static itzuliGeneroa(generoa) {
+    return Item.GENERO_ITZULPENAK[generoa] || generoa;
+  }
+  
   constructor(ApiDatuak) {
     this.id = ApiDatuak.id;
     this.izena = ApiDatuak.title || ApiDatuak.name; // Filmen izenburua
@@ -50,9 +68,11 @@ class Item {
   }
 
   // Propietate guztiak. formularioa = true bada, balorazioa eta iruzkina sartzeko formularioa gehitzen da.
-  toXehetasunHTML(formularioa = false) {
+ toXehetasunHTML(formularioa = false) {
     const generoak = this.generoak.length
-      ? this.generoak.map(g => `<span class="etiketa">${Item.ihes(g)}</span>`).join(' ')
+      ? this.generoak
+          .map(g => `<span class="etiketa">${Item.ihes(Item.itzuliGeneroa(g))}</span>`)
+          .join(' ')
       : '-';
     const puntuazioaTestua = this.puntuazioa !== null ? `${this.puntuazioa} / 10` : '-';
 
