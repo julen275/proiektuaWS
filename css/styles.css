@@ -1,145 +1,665 @@
+/* ============================================================
+   ITEM ESPLORATZAILEA — Urratsa 7: Birdiseinua (IA erabiliz)
+   Estiloa: Netflix/Letterboxd — ilun, urre/gorri azentuak
+   ============================================================ */
+
+/* ---------- Tokenak ---------- */
 :root {
-  color-scheme:light;
-  --fondoa: #ffffff;
-  --testua: #1a1a1a;
-  --ertzak: #cccccc; 
-}
-[data-theme="dark"]{
-  color-scheme:dark;
-  --fondoa: #121212;
-  --testua: #e8e8e8;
-  --ertzak: #444444;
+  /* Kolore-sistema */
+  --bg-primary:    #0a0a0f;
+  --bg-secondary:  #111118;
+  --bg-card:       #16161f;
+  --bg-panel:      #1a1a24;
+  --bg-hover:      #22222e;
+
+  --accent:        #e50914;        /* Netflix gorria */
+  --accent-gold:   #f5c518;        /* IMDb urrea */
+  --accent-hover:  #ff1f2b;
+
+  --text-primary:  #f0f0f0;
+  --text-secondary:#a0a0b0;
+  --text-muted:    #606070;
+
+  --border:        #2a2a38;
+  --border-accent: #e50914;
+
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.6);
+  --shadow-hover: 0 8px 32px rgba(229,9,20,0.25);
+
+  --transition: 0.2s ease;
+
+  color-scheme: dark;
 }
 
+/* Modu argia (checkbox bidez aktibatua) */
+[data-theme="light"] {
+  --bg-primary:    #f4f4f8;
+  --bg-secondary:  #ffffff;
+  --bg-card:       #ffffff;
+  --bg-panel:      #f9f9fc;
+  --bg-hover:      #f0f0f6;
+  --text-primary:  #111118;
+  --text-secondary:#444456;
+  --text-muted:    #888898;
+  --border:        #dddde8;
+  --shadow-card: 0 2px 10px rgba(0,0,0,0.08);
+  --shadow-hover: 0 6px 20px rgba(229,9,20,0.15);
+  color-scheme: light;
+}
+
+/* ---------- Reset & base ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
 body {
-  font-family: sans-serif;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
   margin: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--fondoa);
-  color: var(--testua);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.5;
 }
 
+/* ---------- Header ---------- */
 #goiburua {
-  padding: 16px;
-  border-bottom: 1px solid var(--ertzak);
+  padding: 0 24px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--accent);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.5);
 }
 
 #goiburua h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font-size: 1.4rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--text-primary);
 }
 
+#goiburua h1::first-letter {
+  color: var(--accent);
+}
+
+/* ---------- Layout nagusia ---------- */
 #biltegi-nagusia {
   flex: 1;
   display: flex;
 }
 
+/* ---------- Menu laterala ---------- */
 #menu-nagusia {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   width: 200px;
   flex-shrink: 0;
-  padding: 16px;
-  border-right: 1px solid var(--ertzak);
+  padding: 20px 12px;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border);
 }
 
 #menu-nagusia button {
-  padding: 8px;
+  padding: 10px 14px;
   text-align: left;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), transform var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+#menu-nagusia button:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  transform: translateX(3px);
 }
 
 #menu-nagusia button.active {
-  font-weight: bold;
-  text-decoration: underline;
+  background: rgba(229, 9, 20, 0.12);
+  color: var(--accent);
+  font-weight: 700;
+  border-left: 3px solid var(--accent);
 }
 
+/* ---------- Main content ---------- */
 main {
   flex: 1;
-  padding: 16px;
+  padding: 24px;
+  background: var(--bg-primary);
+  overflow-y: auto;
 }
 
+/* ---------- Footer ---------- */
 #oina {
-  padding: 12px 16px;
-  border-top: 1px solid var(--ertzak);
+  padding: 14px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-secondary);
   text-align: center;
+  color: var(--text-muted);
+  font-size: 0.8rem;
 }
 
-#oina p {
-  margin: 0;
+#oina p { margin: 0; }
+
+/* ---------- Atal ezkutatu/erakutsi ---------- */
+.atala { display: none; }
+.atala.aktiboa { display: block; }
+
+/* ---------- Hasiera atala ---------- */
+#atala-hasiera .panel p {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
 }
 
-.atala {
-  display: none;
+/* ---------- Panelak ---------- */
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
 }
 
-.atala.aktiboa {
-  display: block;
+.panel h2 {
+  margin: 0 0 20px;
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
 }
 
+.panel h3 {
+  margin: 0 0 14px;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+/* ---------- Txartelak (item cards) ---------- */
 .item-card {
-  border: 1px solid var(--ertzak);
-  border-radius: 6px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
   padding: 12px;
   margin-bottom: 12px;
   cursor: pointer;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
+}
+
+.item-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--accent);
 }
 
 .item-card img {
-  max-width: 100%;
-  height: auto;
+  width: 56px;
+  height: 84px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  background: var(--bg-hover);
+}
+
+.item-card h3 {
+  margin: 0 0 4px;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.item-card .item-data {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.item-card .item-balorazioa {
+  margin: 4px 0 0;
+  color: var(--accent-gold);
+  font-size: 0.85rem;
+  letter-spacing: 1px;
 }
 
 .item-card.hautatua {
-  outline: 2px solid #00a870;
+  border-color: var(--accent);
+  background: rgba(229,9,20,0.07);
+  box-shadow: 0 0 0 2px rgba(229,9,20,0.3);
 }
+
+/* ---------- Xehetasunen panela ---------- */
+.item-xehetasunak {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-xehetasunak img {
+  width: 100%;
+  max-width: 220px;
+  border-radius: var(--radius-md);
+  margin-bottom: 8px;
+  box-shadow: var(--shadow-card);
+}
+
+.item-xehetasunak h4 {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+  color: var(--text-primary);
+}
+
+.item-xehetasunak p {
+  margin: 4px 0;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.item-xehetasunak p strong {
+  color: var(--text-primary);
+}
+
+/* Etiketa (generoak) */
+.etiketa {
+  display: inline-block;
+  background: rgba(229,9,20,0.15);
+  color: var(--accent);
+  border: 1px solid rgba(229,9,20,0.3);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin: 2px 2px 2px 0;
+}
+
+/* ---------- Formularioak ---------- */
+input[type="text"],
+input[type="number"],
+input[type="file"],
+select,
+textarea {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none;
+  width: 100%;
+}
+
+input[type="text"]:focus,
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(229,9,20,0.15);
+}
+
+select option {
+  background: var(--bg-secondary);
+}
+
+/* ---------- Botoiak ---------- */
+button {
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 9px 18px;
+  font-weight: 600;
+  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+}
+
+button[type="submit"],
+button.btn-gehitu {
+  background: var(--accent);
+  color: #fff;
+}
+
+button[type="submit"]:hover,
+button.btn-gehitu:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(229,9,20,0.4);
+}
+
+button.btn-gorde {
+  background: #1a6b3a;
+  color: #fff;
+}
+
+button.btn-gorde:hover {
+  background: #22883f;
+  transform: translateY(-1px);
+}
+
+button.btn-ezabatu {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+button.btn-ezabatu:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+#botoia-hustu {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+#botoia-hustu:hover {
+  background: rgba(229,9,20,0.1);
+}
+
+#botoia-esportatu {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+}
+
+#botoia-esportatu:hover {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+}
+
+/* ---------- Bilatzaile layout ---------- */
+#bilaketa,
+#bilduma-kontrolak,
+#ekintzak-kudeatu {
+  margin-bottom: 20px;
+}
+
+#form-bilatzaile {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+#form-bilatzaile select {
+  width: auto;
+  flex-shrink: 0;
+}
+
+#form-bilatzaile input {
+  flex: 1;
+  min-width: 180px;
+}
+
+#form-bilatzaile button {
+  flex-shrink: 0;
+  background: var(--accent);
+  color: #fff;
+}
+
+#form-bilatzaile button:hover {
+  background: var(--accent-hover);
+}
+
+#egoera-bilatzen {
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  min-height: 1.2em;
+}
+
+#egoera-bilatzen:empty { display: none; }
 
 .bilatzaile-edukia,
 .bilduma-edukiak {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 24px;
+  gap: 20px;
   align-items: start;
 }
 
-#bilaketa,
-#bilduma-kontrolak,
-#ekintzak-kudeatu{
-  margin-bottom: 24px;
+/* ---------- Bilduma kontrolak ---------- */
+#bilduma-kontrolak label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-#egoera-bilatzen:empty,
-#bilduma-kontrolak:empty {
-  display: none;
+#bilduma-kontrolak select {
+  width: auto;
+  min-width: 120px;
 }
 
-.panel {
-  border: 1px solid var(--ertzak);
-  border-radius: 6px;
-  padding: 12px;
+#bilduma-kopurua {
+  font-size: 0.85rem;
+  color: var(--accent-gold);
+  font-weight: 700;
 }
 
-.panel h3 {
-  margin-top: 0;
+/* ---------- Kudeatu panela ---------- */
+.item-kudeatu {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg-card);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  transition: border-color var(--transition);
 }
 
+.item-kudeatu:hover {
+  border-color: var(--border-accent);
+}
+
+.item-kudeatu img {
+  width: 50px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.item-kudeatu h3 {
+  margin: 0 0 8px;
+  font-size: 0.95rem;
+  flex: 1;
+  min-width: 100px;
+}
+
+.item-kudeatu label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.input-balorazioa {
+  width: 70px !important;
+}
+
+.input-iruzkina {
+  width: 100%;
+  min-height: 60px;
+  resize: vertical;
+}
+
+/* ---------- Estatistikak ---------- */
+#estatistika-zerrenda {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+#estatistika-zerrenda li {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+#estatistika-zerrenda li strong {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+#estatistika-zerrenda li span {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+}
+
+#estatistika-generoak p {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+#estatistika-generoak p:last-child {
+  border-bottom: none;
+}
+
+/* ---------- Ezarpenak ---------- */
+#atala-ezarpenak .panel label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+#gai-aldatzailea {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+/* ---------- Mezuak ---------- */
+.mezua, #mezua-inportatu {
+  font-size: 0.82rem;
+  color: var(--accent-gold);
+  margin-top: 6px;
+  min-height: 1em;
+}
+
+/* ---------- Forma-gehitu ---------- */
+.form-gehitu p {
+  margin: 0 0 10px;
+}
+
+.form-gehitu label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 4px;
+}
+
+.form-gehitu select,
+.form-gehitu textarea {
+  margin-bottom: 2px;
+}
+
+/* ---------- Scroll personalizado ---------- */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* ---------- Animazio txikiak ---------- */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.atala.aktiboa {
+  animation: fadeIn 0.25s ease forwards;
+}
+
+/* ---------- Responsive ---------- */
 @media (max-width: 800px) {
-  #biltegi-nagusia {
-    flex-direction: column;
-  }
+  #goiburua { padding: 0 16px; }
+
+  #biltegi-nagusia { flex-direction: column; }
 
   #menu-nagusia {
     width: auto;
     flex-direction: row;
     flex-wrap: wrap;
     border-right: none;
-    border-bottom: 1px solid var(--ertzak);
+    border-bottom: 2px solid var(--accent);
+    padding: 10px 12px;
+    gap: 6px;
+    position: sticky;
+    top: 60px;
+    z-index: 90;
+    background: var(--bg-secondary);
   }
+
+  #menu-nagusia button {
+    padding: 7px 12px;
+    font-size: 0.82rem;
+  }
+
+  #menu-nagusia button.active {
+    border-left: none;
+    border-bottom: 2px solid var(--accent);
+    border-radius: 0;
+  }
+
+  main { padding: 14px; }
 
   .bilatzaile-edukia,
   .bilduma-edukiak {
     grid-template-columns: 1fr;
+  }
+
+  #form-bilatzaile {
+    flex-direction: column;
+  }
+
+  #form-bilatzaile select,
+  #form-bilatzaile input,
+  #form-bilatzaile button {
+    width: 100%;
   }
 }

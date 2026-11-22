@@ -174,18 +174,20 @@ function erakutsiKudeatuBilduma() {
   lista.innerHTML = items.map(item => item.toKudeatuHTML()).join('');
 }
 
-function temaIlunaDa(){
-  const gordeta = localStorage.getItem('gaia');
-  if(gordeta ===null) {
-    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+// Urratsa 7: Birdiseinua — oinarriz iluna, checkbox-ak argia aktibatzen du
+function temaArgiaDa() {
+  const gordeta = localStorage.getItem('tema');
+  if (gordeta === null) {
+    // Sistema-lehentasuna: argia bada, argi-modua; bestela iluna (default)
+    return window.matchMedia('(prefers-color-scheme: light)').matches;
   }
-  return gordeta === 'iluna';
+  return gordeta === 'argia';
 }
-function temaAplikatu(iluna){
-  if(iluna){
-    document.documentElement.dataset.theme= 'dark';
 
-  } else{
+function temaAplikatu(argia) {
+  if (argia) {
+    document.documentElement.dataset.theme = 'light';
+  } else {
     document.documentElement.removeAttribute('data-theme');
   }
 }
@@ -194,15 +196,16 @@ function hasieratuEzarpenak() {
   const checkbox = document.getElementById('gai-aldatzailea');
   if (!checkbox) return;
 
-  checkbox.checked = temaIlunaDa();
+  // Checkbox: markatuta = modu argia
+  checkbox.checked = temaArgiaDa();
 
   checkbox.onchange = () => {
     temaAplikatu(checkbox.checked);
-    localStorage.setItem('tema', checkbox.checked ? 'iluna' : 'argia');
+    localStorage.setItem('tema', checkbox.checked ? 'argia' : 'iluna');
   };
 }
 
-temaAplikatu(temaIlunaDa());
+temaAplikatu(temaArgiaDa());
 
 
 jaurtiApp();
